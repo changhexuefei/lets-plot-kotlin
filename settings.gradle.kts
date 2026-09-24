@@ -42,8 +42,11 @@ System.getenv("LETS_PLOT_CORE_BUILD")
             dependencySubstitution {
                 substitute(module("org.jetbrains.lets-plot:lets-plot-common"))
                     .using(project(":jvm-package:jvm-publish-common"))
+                // lets-plot-swing is a publication-only aggregator whose AWT dependency
+                // is injected into its generated POM. Composite builds do not see that POM,
+                // so map it directly to the implementation project.
                 substitute(module("org.jetbrains.lets-plot:lets-plot-swing"))
-                    .using(project(":jvm-package:jvm-publish-swing"))
+                    .using(project(":platf-awt"))
                 substitute(module("org.jetbrains.lets-plot:platf-batik"))
                     .using(project(":platf-batik"))
                 substitute(module("org.jetbrains.lets-plot:platf-awt"))
