@@ -34,23 +34,16 @@ jobs:
       - name: Validate Gradle wrappers
         uses: gradle/actions/wrapper-validation@v4
 
-      - name: Publish Core 4.11.1-SNAPSHOT locally
-        working-directory: core
+      - name: Configure source-level Core integration
         run: |
-          ./gradlew \
-            -Pbuild_release=true \
-            -Penable_python_package=false \
-            -Parchitecture=x86_64 \
-            publishLetsPlotCoreModulesToMavenLocalRepository \
-            --stacktrace
-
-      - name: Configure Lets-Plot Kotlin to consume local Core
-        working-directory: kotlin-api
-        run: |
-          cat > local.properties <<EOF
+          echo "LETS_PLOT_CORE_BUILD=${GITHUB_WORKSPACE}/core" >> "$GITHUB_ENV"
+          cat > core/local.properties <<EOF
+          enable_python_package=false
+          architecture=x86_64
+          EOF
+          cat > kotlin-api/local.properties <<EOF
           sonatype.username=
           sonatype.password=
-          maven.repo.local=${GITHUB_WORKSPACE}/core/.maven-publish-dev-repo
           EOF
 
       - name: Compile Kotlin API targets
