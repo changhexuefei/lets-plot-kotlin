@@ -32,6 +32,29 @@ pluginManagement {
     }
 }
 
+// Optional source-level integration with a local lets-plot core checkout.
+// Compatibility CI uses this to validate Kotlin API against the upgraded core
+// without publishing unrelated Native artifacts.
+System.getenv("LETS_PLOT_CORE_BUILD")
+    ?.takeIf { it.isNotBlank() }
+    ?.let { coreBuildPath ->
+        includeBuild(coreBuildPath) {
+            dependencySubstitution {
+                substitute(module("org.jetbrains.lets-plot:lets-plot-common"))
+                    .using(project(":jvm-package:jvm-publish-common"))
+                // lets-plot-swing is a publication-only aggregator whose AWT dependency
+                // is injected into its generated POM. Composite builds do not see that POM,
+                // so map it directly to the implementation project.
+                substitute(module("org.jetbrains.lets-plot:lets-plot-swing"))
+                    .using(project(":platf-awt"))
+                substitute(module("org.jetbrains.lets-plot:platf-batik"))
+                    .using(project(":platf-batik"))
+                substitute(module("org.jetbrains.lets-plot:platf-awt"))
+                    .using(project(":platf-awt"))
+            }
+        }
+    }
+
 rootProject.name = "lets-plot-kotlin"
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
